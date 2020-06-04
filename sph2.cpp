@@ -6,7 +6,7 @@
 using namespace std;
 
 int N=100;
-double h=1; /*El parametro de suavizado es de 5, constante*/
+double h=1; /*El parametro de suavizado*/
 double m=1/(double)N;
 double PI = 3.1415926535897932;
 
@@ -17,6 +17,8 @@ struct particula{
 	vector<double> R;
 	vector<double> W;
 	double Rho;
+	double dxRho;
+	double dxxRho;
 	double Pres;
 	double ac;
 };
@@ -53,20 +55,31 @@ int main(){
 	for(int i=0; i<N;++i){
 		sph[i].Rho=densidad(sph[i].W);
 	}
-	/*Calculo de la presión, solo se presenta en una dimensión*/
-	double dxWij=0, dxxWij=0;
+	/*Calculo de la presión, solo se presenta en una dimensión----------------*/
 	for(int i=0; i<N; ++i){
+		/*La primera parte consiste en dxRho y dxxRho*/
+		double dxRho=0, dxxRho=0;
 		for(int j=0; j<sph[i].in.size();++j){
 			double rij=(sph[i].r-sph[sph[i].in.at(j)].r);
-			dxWij+=((1/(h*sqrt(PI)))*(1/(h*sqrt(PI)))*(1/(h*sqrt(PI))))*exp(-(rij*rij)/(h*h))*(-2*rij/(h*h));
-			dxxWij+=((1/(h*sqrt(PI)))*(1/(h*sqrt(PI)))*(1/(h*sqrt(PI))))*exp(-(rij*rij)/(h*h))*(4*(rij/(h*h))*(rij/(h*h))-2/(h*h));
+			double Cij=(m/sph[sph[i].in.at(j)].Rho)*(sph[sph[i].in.at(j)].Rho-sph[i].Rho);
+			sph[i].dxRho+=(Cij)*(sph[i].W.at(j))*(-2*rij/(h*h));
+			sph[i].dxxRho+=(Cij)*(sph[i].W.at(j))*(4*(rij/(h*h))*(rij/(h*h))-2/(h*h));
+		}
+		
+	}
+	/*La segunda parte consiste en calcular la presión para cada partícula*/
+	for(int i=0; i<N ;++i){
+		for(int j=0; j<sph[i].in.size();++j){
+			int k=sph[i].in.at(j);
+			sph[i].Pres+=(m/4)*(((sph[k].dxRho)*(sph[k].dxRho))-sph[k].dxxRho)*sph[i].W.at(j);
 		}
 	}
 	
-	/*Impresion de resultados*/
+	/*Datos*/
 	ofstream file2 ("R_relativa.dat");
 	ofstream file3 ("F_suavizado.dat");
 	ofstream file4 ("Rho_densidad.dat");
+	ofstream file5 ("presion.dat");
 	for(int i=0; i<N;++i){
 		for(int j=0;j<sph[i].in.size() ;++j){
 			if(i!=j){
@@ -75,11 +88,12 @@ int main(){
 			}
 		}
 		file4 << i << " " << sph[i].Rho << '\n';
+		file5 << i << " " << sph[i].Pres << '\n';
 	}
 	file2.close();
 	file3.close();
 	file4.close();
-	
+	file5.close();
 
 }
 
