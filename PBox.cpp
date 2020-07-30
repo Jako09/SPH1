@@ -121,7 +121,7 @@ int main(){
 //					if(abs(R)<=1.0){ /*Funcion no compacta*/
 						p[i].in.push_back(j);
 						cout << i << " " << j << '\n';
-						if(R!=0.0){/*Aquí se toman los valores donde no hay superposición de partículas*/
+						/*Aquí se toman los valores donde no hay superposición de partículas*/
 							W=alpha[i]*exp(-R*R);
 							Wx=alpha[i]*exp(-R*R)*(-R*beta[i]);
 							Wxx=alpha[i]*exp(-R*R)*(R*R*beta[i]*beta[i]-delta[i]);
@@ -129,15 +129,6 @@ int main(){
 							p[i].Wx.push_back(Wx);
 							p[i].Wxx.push_back(Wxx);
 //							file4 << i << " " << j << " " << W << " " << Wx << " " << Wxx << '\n';
-						}else{/*Aquí se toman los valores donde hay superposición*/
-							W=alpha[i]*exp(eta*eta);
-							Wx=alpha[i]*exp(-eta*eta)*(-eta*beta[i]);
-							Wxx=alpha[i]*exp(-eta*eta)*(eta*eta*beta[i]*beta[i]-delta[i]);
-							p[i].W.push_back(W);
-							p[i].Wx.push_back(Wx);
-							p[i].Wxx.push_back(Wxx);
-//							file4 << i << " " << j << " " << W << " " << Wx << " " << Wxx << '\n';
-						}
 //					}	
 				}
 			}
